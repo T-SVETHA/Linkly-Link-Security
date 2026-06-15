@@ -1,4 +1,4 @@
-name: Appium Mobile Tests
+name: Security Tests
 
 on:
   push:
@@ -27,22 +27,21 @@ jobs:
     - name: Grant Execute Permission for Gradlew
       run: chmod +x gradlew
 
-    - name: Run Appium Tests
-      run: ./gradlew :appium-tests:test
+    - name: Execute Security Tests
+      run: ./gradlew :security-tests:test
 
-    # Publish XML test results directly to GitHub Actions Run summary
-    - name: Publish Test Results
+    - name: Publish Test Results to Checks
       uses: mikepenz/action-junit-report@v4
-      if: always() # Runs even if tests fail
+      if: always()
       with:
         report_paths: '**/build/test-results/test/TEST-*.xml'
 
-    # Upload the detailed HTML report and styled Excel report as artifacts
-    - name: Upload Test Report Artifact
+    - name: Upload Test Reports and Excel Output
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: appium-test-reports
+        name: security-test-reports
         path: |
-          appium-tests/build/reports/tests/test/
-          appium-tests/reports/Appium_Mobile_Report.xlsx
+          security-tests/build/reports/tests/test/
+          security-tests/build/test-results/test/
+          security-tests/reports/Vulnerability_Report.xlsx

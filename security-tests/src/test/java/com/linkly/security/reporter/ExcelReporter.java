@@ -1,4 +1,4 @@
-package com.linkly.appium.reporter;
+package com.linkly.security.reporter;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -44,173 +44,175 @@ public class ExcelReporter {
     private static final Map<String, TestCaseDetails> DETAILS_MAP = new HashMap<>();
 
     static {
-        DETAILS_MAP.put("test1_SplashScreenLoad", new TestCaseDetails(
-            "TC-APP-01", "TC-LAUNCH: App Launch", "Splash Screen",
-            "Verify the splash screen logo and title load correctly on app startup",
-            "1. Launch application\n2. Wait for splash screen layout\n3. Verify logo and app title presence",
-            "App logo is displayed and title is visible", "screenshots/TC-APP-01.png"
+        DETAILS_MAP.put("test1_SqlInjectionProtection", new TestCaseDetails(
+            "TC-SEC-01", "TC-INJ: Injection Controls", "/api/login",
+            "Verify single quotes are correctly escaped in parameters to prevent SQL injection",
+            "1. Send parameter: 1' OR '1'='1\n2. Verify database queries treat input as literal string",
+            "Queries are escaped correctly; database ignores injection characters", "N/A"
         ));
-        DETAILS_MAP.put("test2_LoginWithValidCredentials", new TestCaseDetails(
-            "TC-APP-02", "TC-AUTH: Authentication", "Login Screen",
-            "Verify user login is successful using valid email and password",
-            "1. Enter valid parent email\n2. Enter valid password\n3. Click 'Login' button",
-            "User is authenticated and redirected to main Dashboard", "screenshots/TC-APP-02.png"
+        DETAILS_MAP.put("test2_XssProtection", new TestCaseDetails(
+            "TC-SEC-02", "TC-XSS: Scripting Controls", "/api/dashboard",
+            "Verify HTML entities are escaped before rendering to prevent XSS payloads",
+            "1. Submit input: <script>alert('xss')</script>\n2. Assert output displays escaped brackets",
+            "Script brackets are replaced with safe HTML entities", "N/A"
         ));
-        DETAILS_MAP.put("test3_LoginErrorValidation", new TestCaseDetails(
-            "TC-APP-03", "TC-AUTH: Authentication", "Login Screen",
-            "Verify appropriate error popup/text displays on invalid credentials input",
-            "1. Enter valid email\n2. Enter incorrect password\n3. Click 'Login' button",
-            "Authentication fails, displaying error message prompt", "screenshots/TC-APP-03.png"
+        DETAILS_MAP.put("test3_CsrfProtection", new TestCaseDetails(
+            "TC-SEC-03", "TC-CSRF: Session Integrity", "/api/lockdown",
+            "Verify state-changing POST requests block execution when CSRF token is empty",
+            "1. Send POST request with empty token header\n2. Assert access is blocked",
+            "Request is rejected immediately returning validation error", "N/A"
         ));
-        DETAILS_MAP.put("test4_RegistrationSuccess", new TestCaseDetails(
-            "TC-APP-04", "TC-AUTH: Authentication", "Signup Screen",
-            "Verify registration completes successfully for new users",
-            "1. Enter username\n2. Enter unique email\n3. Enter secure password\n4. Click 'Register'",
-            "Registration is successful, user session initialized", "screenshots/TC-APP-04.png"
+        DETAILS_MAP.put("test4_AuthenticationValidation", new TestCaseDetails(
+            "TC-SEC-04", "TC-AUTH: Identity Access", "/api/telemetry",
+            "Verify protected resources reject requests lacking a Bearer Auth token header",
+            "1. Query telemetry endpoint with empty Auth header\n2. Assert HTTP response status is 401",
+            "Access is denied, request blocked with status 401", "N/A"
         ));
-        DETAILS_MAP.put("test5_RegistrationFieldValidation", new TestCaseDetails(
-            "TC-APP-05", "TC-AUTH: Authentication", "Signup Screen",
-            "Verify registration is prevented and fields validated on empty username input",
-            "1. Leave username blank\n2. Enter email and password\n3. Click 'Register'",
-            "Validation error highlights empty username field", "screenshots/TC-APP-05.png"
+        DETAILS_MAP.put("test5_AuthorizationValidation", new TestCaseDetails(
+            "TC-SEC-05", "TC-AUTH: Privilege Levels", "/api/parent/config",
+            "Verify child user account roles are denied access to parent dashboard APIs",
+            "1. Authenticate as CHILD\n2. Send request to parent configuration API\n3. Assert status is 403",
+            "Privilege escalation blocked; request rejected with status 403", "N/A"
         ));
-        DETAILS_MAP.put("test6_ForgotPassword", new TestCaseDetails(
-            "TC-APP-06", "TC-AUTH: Authentication", "Login Screen",
-            "Verify password reset trigger option redirect works",
-            "1. Click 'Forgot Password' link label",
-            "User is redirected to password recovery layout", "screenshots/TC-APP-06.png"
+        DETAILS_MAP.put("test6_JwtSignatureValidation", new TestCaseDetails(
+            "TC-SEC-06", "TC-CRYPTO: Data Integrity", "/api/session",
+            "Verify altered JWT token signatures are rejected on validation attempts",
+            "1. Tamper signature bytes of active JWT token\n2. Attempt access using tampered token",
+            "Authentication verification checks reject tampered signature token", "N/A"
         ));
-        DETAILS_MAP.put("test7_OtpVerification", new TestCaseDetails(
-            "TC-APP-07", "TC-AUTH: OTP Verification", "OTP Screen",
-            "Verify OTP verification accepts standard 6-digit numeric input",
-            "1. Input valid 6-digit token\n2. Click verify",
-            "OTP validation passes and account is activated", "screenshots/TC-APP-07.png"
+        DETAILS_MAP.put("test7_SessionExpiration", new TestCaseDetails(
+            "TC-SEC-07", "TC-SESSION: State Management", "/api/session/refresh",
+            "Verify session manager times out and invalidates sessions inactive for 15+ minutes",
+            "1. Simulate inactive state for 20 minutes\n2. Assert active session validation fails",
+            "Inactivity leads to automatic session timeout and logout redirection", "N/A"
         ));
-        DETAILS_MAP.put("test8_DashboardLoad", new TestCaseDetails(
-            "TC-APP-08", "TC-DASHBOARD: Dashboard", "Dashboard",
-            "Verify the home dashboard metrics load successfully after authentication",
-            "1. Access dashboard tab\n2. Assert header displays parent dashboard info",
-            "Main dashboard interface displays connected telemetry summary details", "screenshots/TC-APP-08.png"
+        DETAILS_MAP.put("test8_PasswordPolicyValidation", new TestCaseDetails(
+            "TC-SEC-08", "TC-AUTH: Password Policies", "/api/register",
+            "Verify password hashing utility rejects low-complexity passwords",
+            "1. Attempt registration using password: 123\n2. Verify rejection response details",
+            "Complexity check blocks policy-violating password submission", "N/A"
         ));
-        DETAILS_MAP.put("test9_NavigationMenu", new TestCaseDetails(
-            "TC-APP-09", "TC-DASHBOARD: Dashboard", "Dashboard",
-            "Verify sidebar navigation drawer opens on toggle click",
-            "1. Tap navigation hamburger menu icon\n2. Verify drawer links options display",
-            "Navigation drawer opens overlaying current dashboard view", "screenshots/TC-APP-09.png"
+        DETAILS_MAP.put("test9_BruteForceProtection", new TestCaseDetails(
+            "TC-SEC-09", "TC-AUTH: Identity Access", "/api/login",
+            "Verify user login lockout is triggered after 5 consecutive auth failures",
+            "1. Perform 6 consecutive incorrect password login attempts\n2. Assert account state locked",
+            "Brute force lockout occurs, blocking subsequent attempts", "N/A"
         ));
-        DETAILS_MAP.put("test10_ProfileView", new TestCaseDetails(
-            "TC-APP-10", "TC-PROFILE: Profile", "Profile Screen",
-            "Verify profile info layout displays matching user profile details",
-            "1. Access profile tab section\n2. Verify name and email label text fields",
-            "Current profile information matches account metadata", "screenshots/TC-APP-10.png"
+        DETAILS_MAP.put("test10_RateLimiting", new TestCaseDetails(
+            "TC-SEC-10", "TC-DOS: Rate Limiting", "/api/logs",
+            "Verify API throttle limits trigger HTTP 429 when client limits exceed 100 requests",
+            "1. Send 101 requests within one minute\n2. Verify rate limit response code",
+            "Requests throttle, returning HTTP status code 429", "N/A"
         ));
-        DETAILS_MAP.put("test11_ProfileEdit", new TestCaseDetails(
-            "TC-APP-11", "TC-PROFILE: Profile", "Profile Edit Screen",
-            "Verify editing user name info saves and updates profile headers",
-            "1. Click edit profile\n2. Modify profile name field\n3. Click update save",
-            "Profile updates successfully displaying new display name", "screenshots/TC-APP-11.png"
+        DETAILS_MAP.put("test11_InputValidation", new TestCaseDetails(
+            "TC-SEC-11", "TC-VAL: Input Filtering", "/api/profile",
+            "Verify field email format pattern validations reject invalid syntax forms",
+            "1. Submit invalid email format: svetha@@linkly\n2. Assert validation feedback",
+            "Input verification regex rejects malformed email syntax", "N/A"
         ));
-        DETAILS_MAP.put("test12_PasswordChange", new TestCaseDetails(
-            "TC-APP-12", "TC-PROFILE: Profile", "Password Change Screen",
-            "Verify user can update password by providing old and new values",
-            "1. Click change password\n2. Enter old and new passwords\n3. Save configuration",
-            "Password changes successfully and session remains active", "screenshots/TC-APP-12.png"
+        DETAILS_MAP.put("test12_ApiSchemaValidation", new TestCaseDetails(
+            "TC-SEC-12", "TC-VAL: Input Filtering", "/api/register",
+            "Verify API schema validator rejects body payload missing required parameters",
+            "1. Submit register JSON missing email field\n2. Assert validation failure response",
+            "Schema verification rejects incomplete payload schema", "N/A"
         ));
-        DETAILS_MAP.put("test13_SearchFunctionality", new TestCaseDetails(
-            "TC-APP-13", "TC-SEARCH: Search Engine", "Dashboard",
-            "Verify search engine filters companion nodes and logs list successfully",
-            "1. Enter query inside search field\n2. Assert filtered list output match",
-            "Logs/nodes lists are updated dynamically matching search query filter", "screenshots/TC-APP-13.png"
+        DETAILS_MAP.put("test13_HttpsEnforcement", new TestCaseDetails(
+            "TC-SEC-13", "TC-NETWORK: Transport", "/api/*",
+            "Verify insecure HTTP request routes redirect automatically to secure HTTPS",
+            "1. Send GET request to port 80 (HTTP)\n2. Assert redirect location is HTTPS port 443",
+            "Secure channel redirects all HTTP traffic to HTTPS", "N/A"
         ));
-        DETAILS_MAP.put("test14_NotificationView", new TestCaseDetails(
-            "TC-APP-14", "TC-NOTIFICATIONS: Alerts", "Notifications Panel",
-            "Verify alerts and warnings feed displays recent companion warnings",
-            "1. Click notifications bell icon\n2. Verify alert items description visible",
-            "Notifications log displays recent pairing and connection alert feeds", "screenshots/TC-APP-14.png"
+        DETAILS_MAP.put("test14_SecureHeadersValidation", new TestCaseDetails(
+            "TC-SEC-14", "TC-NETWORK: HTTP Headers", "/api/*",
+            "Verify standard secure security headers are returned in HTTP responses",
+            "1. Query API endpoint\n2. Verify presence of X-Frame-Options and X-Content-Type-Options",
+            "Security headers present to deny clickjacking and restrict MIME sniffing", "N/A"
         ));
-        DETAILS_MAP.put("test15_LinkCreation", new TestCaseDetails(
-            "TC-APP-15", "TC-LINKING: Hardware Link", "Device Pairing Screen",
-            "Verify parent can link a new child hardware node using pair token code",
-            "1. Input valid 6-char pairing token\n2. Click link button",
-            "Device pairs successfully, adding new companion to dashboard child node selector", "screenshots/TC-APP-15.png"
+        DETAILS_MAP.put("test15_SensitiveDataMasking", new TestCaseDetails(
+            "TC-SEC-15", "TC-DATA: Data Protection", "/api/logs",
+            "Verify audit log writing filters out and masks sensitive variables",
+            "1. Log request with password parameter\n2. Verify logged entry replaces password with mask",
+            "Log audit trail masks sensitive data fields with placeholder characters", "N/A"
         ));
-        DETAILS_MAP.put("test16_LinkEdit", new TestCaseDetails(
-            "TC-APP-16", "TC-LINKING: Hardware Link", "Device Pairing Screen",
-            "Verify child node configurations can be modified and saved",
-            "1. Edit child node name\n2. Click save settings",
-            "Changes are updated successfully in telemetry selector view", "screenshots/TC-APP-16.png"
+        DETAILS_MAP.put("test16_FileUploadValidation", new TestCaseDetails(
+            "TC-SEC-16", "TC-VAL: File Controls", "/api/upload",
+            "Verify file upload handlers restrict uploads of non-whitelisted extension forms",
+            "1. Upload file named: shell.exe\n2. Assert upload handler returns rejection",
+            "Upload rejected; only image formats (.jpg, .png) are permitted", "N/A"
         ));
-        DETAILS_MAP.put("test17_LinkDelete", new TestCaseDetails(
-            "TC-APP-17", "TC-LINKING: Hardware Link", "Device Pairing Screen",
-            "Verify companion hardware link deletion removes node from child listings",
-            "1. Select child node\n2. Click delete link connection",
-            "Pairing connection is terminated and child node is removed from list", "screenshots/TC-APP-17.png"
+        DETAILS_MAP.put("test17_PathTraversalProtection", new TestCaseDetails(
+            "TC-SEC-17", "TC-VAL: Path Traversal", "/api/download",
+            "Verify filename parameter check strips out directory traversal character patterns",
+            "1. Request file download path: ../../etc/passwd\n2. Assert warning traversal blocked",
+            "Directory traversal attempt is recognized and blocked by file utility", "N/A"
         ));
-        DETAILS_MAP.put("test18_LinkSharing", new TestCaseDetails(
-            "TC-APP-18", "TC-LINKING: Hardware Link", "Device Pairing Screen",
-            "Verify sharing configuration opens android native share dialog option",
-            "1. Click share icon button link",
-            "Native share panel sheet overlay displays options", "screenshots/TC-APP-18.png"
+        DETAILS_MAP.put("test18_AccessControlVerification", new TestCaseDetails(
+            "TC-SEC-18", "TC-CORS: Origin Controls", "/api/*",
+            "Verify CORS headers block wildcard wildcard access on authenticated APIs",
+            "1. Inspect Access-Control-Allow-Origin response header",
+            "Wildcard origin * is rejected; only specific trusted domains allowed", "N/A"
         ));
-        DETAILS_MAP.put("test19_SettingsAccess", new TestCaseDetails(
-            "TC-APP-19", "TC-SETTINGS: Settings", "Settings Screen",
-            "Verify Settings option interface loads and displays option list parameters",
-            "1. Select settings drawer option\n2. Verify layout title is visible",
-            "Settings configuration options interface is displayed", "screenshots/TC-APP-19.png"
+        DETAILS_MAP.put("test19_TokenExpirationValidation", new TestCaseDetails(
+            "TC-SEC-19", "TC-AUTH: Identity Access", "/api/profile",
+            "Verify API rejects requests containing expired authorization Bearer tokens",
+            "1. Supply expired Bearer JWT token in Authorization header\n2. Assert status is 401",
+            "Expired authentication token is identified and blocked", "N/A"
         ));
-        DETAILS_MAP.put("test20_SessionPersistence", new TestCaseDetails(
-            "TC-APP-20", "TC-LAUNCH: App Launch", "Splash Screen",
-            "Verify login state is persisted across application reboot cycles",
-            "1. Restart app process\n2. Verify dashboard loads without login screen detour",
-            "Active session is retained, app boots directly into main dashboard view", "screenshots/TC-APP-20.png"
+        DETAILS_MAP.put("test20_ReplayAttackProtection", new TestCaseDetails(
+            "TC-SEC-20", "TC-REPLAY: Nonce Validation", "/api/lockdown",
+            "Verify duplicated nonce values inside timestamp window are blocked",
+            "1. Submit request with nonce123456\n2. Submit identical request nonce123456\n3. Assert rejection",
+            "Replay attack check rejects duplicates nonce configuration", "N/A"
         ));
-        DETAILS_MAP.put("test21_Logout", new TestCaseDetails(
-            "TC-APP-21", "TC-SETTINGS: Settings", "Settings Screen",
-            "Verify settings logout options terminates active user session",
-            "1. Click logout button\n2. Assert login interface displays",
-            "User session is terminated and client redirected to login layout page", "screenshots/TC-APP-21.png"
+        DETAILS_MAP.put("test21_ApiErrorHandling", new TestCaseDetails(
+            "TC-SEC-21", "TC-LOGGING: Error Handling", "/api/*",
+            "Verify internal server error responses withhold debug stack trace details",
+            "1. Trigger internal server exception\n2. Assert error response body omits system stack traces",
+            "API hides stack traces, displaying generic error descriptions to client", "N/A"
         ));
-        DETAILS_MAP.put("test22_BackNavigation", new TestCaseDetails(
-            "TC-APP-22", "TC-NAVIGATION: Navigation Flow", "Dashboard",
-            "Verify clicking back button navigates back to previous screen correctly",
-            "1. Open profile page\n2. Trigger back button event\n3. Verify dashboard screen display",
-            "Client returns to dashboard and layout state is preserved", "screenshots/TC-APP-22.png"
+        DETAILS_MAP.put("test22_SecureCookieValidation", new TestCaseDetails(
+            "TC-SEC-22", "TC-SESSION: Cookies", "/api/*",
+            "Verify session cookies have Secure and HttpOnly flags configured",
+            "1. Inspect Set-Cookie response header attributes",
+            "Secure and HttpOnly flags are active on session cookies", "N/A"
         ));
-        DETAILS_MAP.put("test23_NetworkRecovery", new TestCaseDetails(
-            "TC-APP-23", "TC-NETWORK: Connection Status", "Dashboard",
-            "Verify offline telemetry banner warning displays on network disconnection",
-            "1. Disable simulated network\n2. Verify warning offline badge presence",
-            "Warning banner alert offline state is displayed immediately", "screenshots/TC-APP-23.png"
+        DETAILS_MAP.put("test23_DataExposureVerification", new TestCaseDetails(
+            "TC-SEC-23", "TC-DATA: Data Protection", "/api/profile",
+            "Verify API serialization configuration excludes internal passwords hash fields",
+            "1. Query profile endpoint\n2. Assert response JSON excludes fields like passwordHash",
+            "Database password hashes are excluded from serialised response", "N/A"
         ));
-        DETAILS_MAP.put("test24_ErrorDialogValidation", new TestCaseDetails(
-            "TC-APP-24", "TC-NAVIGATION: Navigation Flow", "Dashboard",
-            "Verify error dialog window cancels and closes on OK confirmation",
-            "1. Trigger mock exception dialog alert\n2. Click dismiss OK button",
-            "Error dialog disappears and dashboard interactivity is restored", "screenshots/TC-APP-24.png"
+        DETAILS_MAP.put("test24_SecurityLoggingVerification", new TestCaseDetails(
+            "TC-SEC-24", "TC-LOGGING: Audit Trail", "/api/login",
+            "Verify authentication failure triggers write audit trail in log logs",
+            "1. Submit incorrect password login\n2. Verify security logs record auth failure event",
+            "Authentication failure event is logged to secure audit trails", "N/A"
         ));
-        DETAILS_MAP.put("test25_AppLaunchPerformance", new TestCaseDetails(
-            "TC-APP-25", "TC-LAUNCH: App Launch", "Splash Screen",
-            "Verify cold launch duration fits within maximum latency targets",
-            "1. Measure cold start timestamp duration\n2. Assert time is under threshold",
-            "Splash activity launches and transitions to main landing page within limit", "screenshots/TC-APP-25.png"
+        DETAILS_MAP.put("test25_EndpointEnumerationProtection", new TestCaseDetails(
+            "TC-SEC-25", "TC-LOGGING: Endpoint Protection", "/api/missing",
+            "Verify requesting invalid endpoints displays uniform error pages",
+            "1. Query invalid URL path\n2. Compare output text with other invalid paths",
+            "Error messages for missing endpoints are uniform, preventing enumeration", "N/A"
         ));
     }
 
     public static void main(String[] args) {
         try {
-            System.out.println("ExcelReporter: Starting Excel report generation for Appium Mobile tests...");
-            File testResultsDir = new File("build/test-results/test");
-            if (!testResultsDir.exists()) {
-                testResultsDir = new File("appium-tests/build/test-results/test");
+            System.out.println("ExcelReporter: Starting Excel report generation for Security vulnerability tests...");
+            File currentDir = new File(".").getAbsoluteFile();
+            if (currentDir.getName().equals(".")) {
+                currentDir = currentDir.getParentFile();
             }
-            File reportsDir = new File("reports");
+            File projectRoot = currentDir.getName().equals("security-tests") ? currentDir.getParentFile() : currentDir;
+            File testResultsDir = new File(projectRoot, "security-tests/build/test-results/test");
+            File reportsDir = new File(projectRoot, "security-tests/reports");
             if (!reportsDir.exists()) {
                 reportsDir.mkdirs();
             }
-            File reportFile = new File(reportsDir, "Appium_Mobile_Report.xlsx");
+            File reportFile = new File(reportsDir, "Vulnerability_Report.xlsx");
 
             Workbook workbook = new XSSFWorkbook();
-            Sheet sheet = workbook.createSheet("Appium Mobile Report");
+            Sheet sheet = workbook.createSheet("Vulnerability Report");
 
             Font titleFont = workbook.createFont();
             titleFont.setFontName("Segoe UI");
@@ -316,7 +318,7 @@ public class ExcelReporter {
             for (int i = 0; i < 11; i++) {
                 titleRow.createCell(i).setCellStyle(titleStyle);
             }
-            titleRow.getCell(0).setCellValue("Appium Mobile Test Execution Report");
+            titleRow.getCell(0).setCellValue("OWASP Security Control Verification Report");
             sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 10));
 
             int totalTests = 0;
@@ -345,7 +347,7 @@ public class ExcelReporter {
                                 TestCaseDetails details = DETAILS_MAP.get(cleanedMethodName);
 
                                 if (details == null) {
-                                    details = new TestCaseDetails("TC-APP-MOBILE", "TC-APP: Mobile App", "mobile", cleanedMethodName, "N/A", "N/A", "N/A");
+                                    details = new TestCaseDetails("TC-SEC-VULN", "TC-SEC: Vulnerability", "/api/endpoint", cleanedMethodName, "N/A", "N/A", "N/A");
                                 }
 
                                 String timeStr = eElement.getAttribute("time");
@@ -395,7 +397,7 @@ public class ExcelReporter {
                                 row.createCell(3).setCellValue(details.description);
                                 row.createCell(4).setCellValue(details.steps);
                                 row.createCell(5).setCellValue(details.expected);
-                                row.createCell(6).setCellValue(isPassed ? "App screen interactive elements responsive." : "Error: " + errorMsg);
+                                row.createCell(6).setCellValue(isPassed ? "Security control validated successfully." : "Control Failure: " + errorMsg);
                                 row.createCell(7).setCellValue(timeMsStr);
 
                                 Cell statusCell = row.createCell(8);
@@ -471,10 +473,10 @@ public class ExcelReporter {
             workbook.write(fileOut);
             fileOut.close();
             workbook.close();
-            System.out.println("ExcelReporter: Styled Appium report generated successfully at: " + reportFile.getAbsolutePath());
+            System.out.println("ExcelReporter: Styled Security report generated successfully at: " + reportFile.getAbsolutePath());
 
         } catch (Exception e) {
-            System.err.println("ExcelReporter: Error generating Appium report: " + e.getMessage());
+            System.err.println("ExcelReporter: Error generating Security report: " + e.getMessage());
             e.printStackTrace();
         }
     }

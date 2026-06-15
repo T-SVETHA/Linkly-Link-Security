@@ -16,8 +16,7 @@ dependencyResolutionManagement {
 rootProject.name = "Linkly-Link System"
 include(":parent")
 include(":child")
-include(":appium-tests")
-include(":selenium-tests")
+include(":security-tests")
 
 
 

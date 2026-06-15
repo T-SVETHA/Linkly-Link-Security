@@ -9,8 +9,6 @@ java {
 }
 
 dependencies {
-    testImplementation("io.appium:java-client:9.2.2")
-    testImplementation("org.seleniumhq.selenium:selenium-java:4.21.0")
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     // Apache POI for Excel reports
@@ -26,5 +24,7 @@ tasks.test {
 
 tasks.register<JavaExec>("generateExcelReport") {
     classpath = sourceSets["test"].runtimeClasspath
-    mainClass.set("com.linkly.appium.reporter.ExcelReporter")
+    mainClass.set("com.linkly.security.reporter.ExcelReporter")
 }
+
+
