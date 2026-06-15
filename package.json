@@ -1,0 +1,15 @@
+{
+  "name": "linkly-link-system",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix web_parent_dashboard",
+    "build": "npm run build --prefix web_parent_dashboard",
+    "preview": "npm run preview --prefix web_parent_dashboard",
+    "test:e2e": "set JAVA_HOME=C:\\Program Files\\Android\\Android Studio1\\jbr&& gradlew.bat :selenium-tests:test -Dheadless=false",
+    "test:e2e:headless": "set JAVA_HOME=C:\\Program Files\\Android\\Android Studio1\\jbr&& gradlew.bat :selenium-tests:test -Dheadless=true",
+    "test:appium": "set JAVA_HOME=C:\\Program Files\\Android\\Android Studio1\\jbr&& gradlew.bat :appium-tests:test",
+    "test:mobile": "npm run test:appium",
+    "start:appium": "npx appium"
+  }
+}

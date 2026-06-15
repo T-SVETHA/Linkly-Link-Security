@@ -9,6 +9,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/appium-tests" />
             <option value="$PROJECT_DIR$/child" />
             <option value="$PROJECT_DIR$/parent" />
           </set>
