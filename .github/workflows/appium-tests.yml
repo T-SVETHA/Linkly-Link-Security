@@ -1,4 +1,4 @@
-name: Selenium Web Tests
+name: Appium Mobile Tests
 
 on:
   push:
@@ -27,8 +27,8 @@ jobs:
     - name: Grant Execute Permission for Gradlew
       run: chmod +x gradlew
 
-    - name: Run Selenium Tests
-      run: ./gradlew :selenium-tests:test
+    - name: Run Appium Tests
+      run: ./gradlew :appium-tests:test
 
     # Publish XML test results directly to GitHub Actions Run summary
     - name: Publish Test Results
@@ -42,7 +42,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: selenium-test-reports
+        name: appium-test-reports
         path: |
-          selenium-tests/build/reports/tests/test/
-          selenium-tests/reports/Selenium_UI_Report.xlsx
+          appium-tests/build/reports/tests/test/
+          appium-tests/reports/Appium_Mobile_Report.xlsx
