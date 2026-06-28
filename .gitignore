@@ -16,3 +16,8 @@ local.properties
 
 # Excel temp lock files
 ~$*
+
+/node_modules
+/reports/*.xlsx
+/reports/*.json
+

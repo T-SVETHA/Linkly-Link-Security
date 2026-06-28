@@ -11,7 +11,9 @@
     "test:e2e:headless": "set JAVA_HOME=C:\\Program Files\\Android\\Android Studio1\\jbr&& gradlew.bat :selenium-tests:test -Dheadless=true",
     "test:appium": "set JAVA_HOME=C:\\Program Files\\Android\\Android Studio1\\jbr&& gradlew.bat :appium-tests:test",
     "test:mobile": "npm run test:appium",
-    "start:appium": "npx appium"
+    "start:appium": "npx appium",
+    "generate:load-tests": "node load-tests/generate_load_tests.js",
+    "test:load": "node load-tests/run_load_test.js"
   },
   "devDependencies": {
     "exceljs": "^4.4.0",
