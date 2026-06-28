@@ -1,4 +1,4 @@
-name: Load Tests
+name: Testing
 
 on:
   push:
@@ -7,7 +7,8 @@ on:
     branches: [ main, master ]
 
 jobs:
-  test:
+  run-tests:
+    name: Run Security and Load Tests
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -25,15 +26,20 @@ jobs:
     - name: Install Dependencies
       run: npm ci
 
+    - name: Execute Security Tests
+      run: npm run test:security
+
     - name: Generate Load Tests
       run: npm run generate:load-tests
 
     - name: Execute Load Tests
       run: npm run test:load
 
-    - name: Upload Load Test Reports and Excel Output
+    - name: Upload Excel Reports
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: load-test-reports
-        path: reports/LoadTestReport*.xlsx
+        name: test-reports
+        path: |
+          reports/SecurityTestReport*.xlsx
+          reports/LoadTestReport*.xlsx
